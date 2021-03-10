@@ -1,0 +1,43 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: yml_lint
+    image: sdesbure/yamllint:latest
+    commands:
+      - yamllint -d relaxed .drone.yml
+  - name: docker_lint
+    image: hadolint/hadolint:v1.22.1
+    commands:
+      - hadolint --ignore DL3008 base/Dockerfile
+      - hadolint --ignore DL3007 binutils/Dockerfile
+      - hadolint --ignore DL3007 gcc/Dockerfile
+  - name: download
+    image: ubuntu:20.04
+    commands:
+      - apt-get -y update
+      - apt-get -y install curl
+      - ./download.sh
+  - name: base_docker
+    image: plugins/docker:19.03.8
+    environment:
+      DOCKER_BUILDKIT: 0
+    settings:
+      dockerfile: base/Dockerfile
+      repo: kouki-h/linux_cross_openbsd/base
+  - name: binutils_docker
+    image: plugins/docker:19.03.8
+    environment:
+      DOCKER_BUILDKIT: 0
+    settings:
+      dockerfile: binutils/Dockerfile
+      repo: linux_cross_openbsd/binutils
+  - name: gcc_docker
+    image: plugins/docker:19.03.8
+    environment:
+      DOCKER_BUILDKIT: 0
+    settings:
+      dockerfile: gcc/Dockerfile
+      repo: kouki-h/linux_cross_openbsd
