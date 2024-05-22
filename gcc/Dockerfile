@@ -25,3 +25,15 @@ RUN ../gcc-10.2.0/configure \
 FROM ubuntu:20.04
 
 COPY --from=builder /opt /opt
+
+RUN mkdir /usr/libexec && ln -s /opt/usr/libexec/ld.so /usr/libexec/ld.so
+
+ENV CROSS_TRIPLE amd64-unknown-openbsd6.8
+ENV CROSS_COMPILE ${CROSS_TRIPLE}-
+ENV PATH ${PATH}:/opt/bin
+ENV AS=/opt/bin/${CROSS_TRIPLE}-as \
+    AR=/opt/bin/${CROSS_TRIPLE}-ar \
+    CC=/opt/bin/${CROSS_TRIPLE}-gcc \
+    CPP=/opt/bin/${CROSS_TRIPLE}-cpp \
+    CXX=/opt/bin/${CROSS_TRIPLE}-g++ \
+    LD=/opt/bin/${CROSS_TRIPLE}-ld
